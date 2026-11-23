@@ -1,21 +1,21 @@
 import csv
-import time
-language_choice = int(
-    input("Choose the infolist language: \n1 - English \n2 - Ukrainian\n"))
-if language_choice == 1:
-    job_infolist = ['Job Name', 'Company/Organization', 'Location', 'Link']
-elif language_choice == 2:
-    job_infolist = ['Назва вакансії', 'Компанія/Організація',
-                    'Місцезнаходження', 'Посилання']
-else:
-    print("Invalid value! Restart the program")
-    time.sleep(3)
-    exit()
+from dataclasses import astuple
+
+from work import Job
+
+HEADERS = {
+    "en": ["Job Name", "Company/Organization", "Salary", "Location",
+           "Conditions", "Posted", "Link"],
+    "ua": ["Назва вакансії", "Компанія/Організація", "Зарплата", "Місцезнаходження",
+           "Умови", "Опубліковано", "Посилання"],
+}
 
 
-def save_to_csv(jobs):
-    file = open('parsed.csv', mode='w', encoding="utf-8")
-    writer = csv.writer(file)
-    writer.writerow(job_infolist)
-    for job in jobs:
-        writer.writerow(list(job.values()))
+def save_to_csv(jobs: list[Job], path: str = "parsed.csv", lang: str = "en") -> None:
+    # newline="" прибирає порожні рядки між записами на Windows,
+    # utf-8-sig потрібен, щоб Excel правильно показав кирилицю.
+    with open(path, mode="w", encoding="utf-8-sig", newline="") as file:
+        writer = csv.writer(file)
+        writer.writerow(HEADERS[lang])
+        for job in jobs:
+            writer.writerow(astuple(job))
